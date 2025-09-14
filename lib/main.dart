@@ -183,11 +183,6 @@ class _PushableButtonState extends State<PushableButton>
 
     final BorderRadius borderRadius = BorderRadius.circular(widget.height / 2);
 
-    List<BoxShadow>? boxShadow;
-    if (widget.shadow != null) {
-      boxShadow = [widget.shadow!];
-    }
-
     return LayoutBuilder(builder: (context, constrains) {
       return GestureDetector(
         onTap: () {
@@ -202,6 +197,16 @@ class _PushableButtonState extends State<PushableButton>
         child: AnimatedBuilder(
             animation: _animation,
             builder: (context, _) {
+              List<BoxShadow>? boxShadow;
+              if (widget.shadow != null) {
+                boxShadow = [
+                  widget.shadow!.copyWith(
+                    spreadRadius:
+                        widget.shadow!.spreadRadius * (1 - _controller.value),
+                  )
+                ];
+              }
+
               return Container(
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(24)),
