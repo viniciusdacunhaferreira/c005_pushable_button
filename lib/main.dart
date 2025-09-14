@@ -181,6 +181,8 @@ class _PushableButtonState extends State<PushableButton>
         .withLightness(widget.hslColor.lightness - 0.15)
         .toColor();
 
+    final BorderRadius borderRadius = BorderRadius.circular(widget.height / 2);
+
     List<BoxShadow>? boxShadow;
     if (widget.shadow != null) {
       boxShadow = [widget.shadow!];
@@ -204,7 +206,7 @@ class _PushableButtonState extends State<PushableButton>
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(24)),
                 ),
-                height: 50 + 6,
+                height: widget.elevation + widget.height,
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Stack(
@@ -212,22 +214,24 @@ class _PushableButtonState extends State<PushableButton>
                     fit: StackFit.loose,
                     children: [
                       Container(
-                        height: 50 + _animation.value,
+                        height: widget.height + _animation.value,
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: bottomColor,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: borderRadius,
                           boxShadow: boxShadow,
                         ),
                       ),
                       Positioned(
                         width: constrains.maxWidth,
+                        height: widget.height,
                         bottom: _animation.value,
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: topColor,
-                              borderRadius: BorderRadius.circular(24)),
+                            color: topColor,
+                            borderRadius: borderRadius,
+                          ),
                           child: Center(child: widget.child),
                         ),
                       ),
