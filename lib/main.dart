@@ -197,7 +197,7 @@ class _PushableButtonState extends State<PushableButton>
           behavior: HitTestBehavior.deferToChild,
           child: AnimatedBuilder(
             animation: _animation,
-            builder: (context, _) {
+            builder: (context, child) {
               List<BoxShadow>? boxShadow;
               if (widget.shadow != null) {
                 boxShadow = [
@@ -238,7 +238,7 @@ class _PushableButtonState extends State<PushableButton>
                             color: topColor,
                             borderRadius: borderRadius,
                           ),
-                          child: Center(child: widget.child),
+                          child: Center(child: child),
                         ),
                       ),
                     ],
@@ -246,6 +246,7 @@ class _PushableButtonState extends State<PushableButton>
                 ),
               );
             },
+            child: widget.child,
           ),
         );
       },
