@@ -209,8 +209,8 @@ class _PushableButtonState extends State<PushableButton>
               }
 
               return Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(24)),
+                decoration: BoxDecoration(
+                  borderRadius: borderRadius,
                 ),
                 height: widget.elevation + widget.height,
                 child: Align(
