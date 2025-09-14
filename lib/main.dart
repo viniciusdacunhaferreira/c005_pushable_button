@@ -183,18 +183,19 @@ class _PushableButtonState extends State<PushableButton>
 
     final BorderRadius borderRadius = BorderRadius.circular(widget.height / 2);
 
-    return LayoutBuilder(builder: (context, constrains) {
-      return GestureDetector(
-        onTap: () {
-          _controller.forward().whenComplete(() {
-            _runCallback();
-            _controller.reverse();
-          });
-        },
-        onTapDown: (_) => _controller.forward(),
-        onTapCancel: () => _controller.reverse(),
-        behavior: HitTestBehavior.deferToChild,
-        child: AnimatedBuilder(
+    return LayoutBuilder(
+      builder: (context, constrains) {
+        return GestureDetector(
+          onTap: () {
+            _controller.forward().whenComplete(() {
+              _runCallback();
+              _controller.reverse();
+            });
+          },
+          onTapDown: (_) => _controller.forward(),
+          onTapCancel: () => _controller.reverse(),
+          behavior: HitTestBehavior.deferToChild,
+          child: AnimatedBuilder(
             animation: _animation,
             builder: (context, _) {
               List<BoxShadow>? boxShadow;
@@ -244,8 +245,10 @@ class _PushableButtonState extends State<PushableButton>
                   ),
                 ),
               );
-            }),
-      );
-    });
+            },
+          ),
+        );
+      },
+    );
   }
 }
