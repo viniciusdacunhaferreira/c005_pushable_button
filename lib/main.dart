@@ -138,16 +138,105 @@ class PushableButton extends StatefulWidget {
   State<PushableButton> createState() => _PushableButtonState();
 }
 
-class _PushableButtonState extends State<PushableButton> {
+class _PushableButtonState extends State<PushableButton>
+    with SingleTickerProviderStateMixin {
+  double elevation = 6;
+
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  void _runCallback() {
+    if (widget.onPressed != null) widget.onPressed!.call();
+  }
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      vsync: this,
+      duration: Durations.short2,
+    );
+
+    _animation = Tween<double>(begin: widget.elevation, end: 2).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.fastOutSlowIn,
+      ),
+    );
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // TODO: replace with custom button UI and animations
-    return ElevatedButton(
-      onPressed: widget.onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: widget.hslColor.toColor(),
-      ),
-      child: widget.child,
-    );
+    final Color topColor = widget.hslColor.toColor();
+
+    final Color bottomColor = widget.hslColor
+        .withLightness(widget.hslColor.lightness - 0.15)
+        .toColor();
+
+    List<BoxShadow>? boxShadow;
+    if (widget.shadow != null) {
+      boxShadow = [widget.shadow!];
+    }
+
+    return LayoutBuilder(builder: (context, constrains) {
+      return GestureDetector(
+        onTap: () {
+          _controller.forward().whenComplete(() {
+            _runCallback();
+            _controller.reverse();
+          });
+        },
+        onTapDown: (_) => _controller.forward(),
+        onTapCancel: () => _controller.reverse(),
+        behavior: HitTestBehavior.deferToChild,
+        child: AnimatedBuilder(
+            animation: _animation,
+            builder: (context, _) {
+              return Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(24)),
+                ),
+                height: 50 + 6,
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    fit: StackFit.loose,
+                    children: [
+                      Container(
+                        height: 50 + _animation.value,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: bottomColor,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: boxShadow,
+                        ),
+                      ),
+                      Positioned(
+                        width: constrains.maxWidth,
+                        bottom: _animation.value,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                              color: topColor,
+                              borderRadius: BorderRadius.circular(24)),
+                          child: Center(child: widget.child),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+      );
+    });
   }
 }
