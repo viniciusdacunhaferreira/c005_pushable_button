@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -138,16 +140,101 @@ class PushableButton extends StatefulWidget {
   State<PushableButton> createState() => _PushableButtonState();
 }
 
-class _PushableButtonState extends State<PushableButton> {
+class _PushableButtonState extends State<PushableButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  void _runCallback() {
+    if (widget.onPressed != null) widget.onPressed!.call();
+  }
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      vsync: this,
+      duration: Durations.short1,
+    );
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // TODO: replace with custom button UI and animations
-    return ElevatedButton(
-      onPressed: widget.onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: widget.hslColor.toColor(),
+    final Color topColor = widget.hslColor.toColor();
+
+    final Color bottomColor = widget.hslColor
+        .withLightness(widget.hslColor.lightness - 0.15)
+        .toColor();
+
+    final BorderRadius borderRadius = BorderRadius.circular(widget.height / 2);
+
+    return SizedBox(
+      height: widget.elevation + widget.height,
+      child: GestureDetector(
+        onTap: () {
+          _controller.forward().whenComplete(() {
+            _runCallback();
+            _controller.reverse();
+          });
+        },
+        onTapDown: (_) => _controller.forward(),
+        onTapCancel: () => _controller.reverse(),
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            final boxShadow = widget.shadow == null
+                ? null
+                : [
+                    widget.shadow!.copyWith(
+                      spreadRadius:
+                          widget.shadow!.spreadRadius * (1 - _controller.value),
+                    )
+                  ];
+
+            final double elevation = max(
+              2,
+              (1 - _controller.value) * widget.elevation,
+            );
+
+            return Stack(
+              children: [
+                Positioned.fill(
+                  top: null,
+                  child: Container(
+                    height: widget.height + elevation,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: bottomColor,
+                      borderRadius: borderRadius,
+                      boxShadow: boxShadow,
+                    ),
+                  ),
+                ),
+                Positioned.fill(
+                  top: null,
+                  bottom: elevation,
+                  child: Container(
+                    height: widget.height,
+                    decoration: BoxDecoration(
+                      color: topColor,
+                      borderRadius: borderRadius,
+                    ),
+                    child: Center(child: child),
+                  ),
+                ),
+              ],
+            );
+          },
+          child: widget.child,
+        ),
       ),
-      child: widget.child,
     );
   }
 }
